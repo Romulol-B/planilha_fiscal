@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+.obsidian/
+.env
+.env.*
+!.env.example
+config.toml
+config.sheets.toml
+config.sheets.teste.toml
+credentials*.json
+client_secret*.json
+*service-account*.json
+dados/
+saidas/

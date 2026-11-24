@@ -1,0 +1,18 @@
+[
+  {
+    "linha": 3,
+    "data": "2026-11-21",
+    "descritivo": "TESTE CLI 01",
+    "vencimento": "2026-11-21",
+    "previsto": "-15,00",
+    "pagamento": "-15,00"
+  },
+  {
+    "linha": 4,
+    "data": "2026-11-21",
+    "descritivo": "TESTE CLI 02",
+    "vencimento": "2026-11-21",
+    "previsto": "-5,00",
+    "pagamento": "-5,00"
+  }
+]

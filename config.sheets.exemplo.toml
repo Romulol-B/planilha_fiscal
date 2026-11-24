@@ -1,0 +1,15 @@
+# Copie para config.sheets.toml. Caminhos relativos partem desta pasta.
+[google_sheets]
+planilha_id = "COLE_O_ID_DA_PLANILHA"
+credenciais = "dados/google-service-account.json"
+aba_modelo = "FC NOV"
+# Nesta primeira versão, a escrita é limitada a abas com prefixo TESTE.
+aba_teste = "TESTE CLI"
+
+# A aba Parcelas fica em planilha_id, ou no principal_id opcional abaixo.
+# principal_id = "ID_DA_PLANILHA_PRINCIPAL"
+
+# Comece com cópias de teste dos arquivos anuais. Não use o mesmo ID em dois anos.
+[anos]
+# "2026" = "ID_DA_COPIA_DE_TESTE_2026"
+# "2027" = "ID_DA_COPIA_DE_TESTE_2027"

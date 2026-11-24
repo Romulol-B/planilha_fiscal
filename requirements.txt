@@ -1,0 +1,4 @@
+requests>=2.32,<3
+openpyxl>=3.1.5,<4
+google-auth[requests]>=2.40,<3
+

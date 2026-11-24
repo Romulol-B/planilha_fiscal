@@ -1,0 +1,15 @@
+{
+  "id": "teste-janeiro",
+  "data": "2026-01-10",
+  "parcelas": 3,
+  "primeiro_vencimento": "2026-02-10",
+  "produtos": [
+    {
+      "id": "cera",
+      "descricao": "TESTE - Cera",
+      "quantidade": 1,
+      "centro_custo": "Conta  a pagar",
+      "valor_total": "90,00"
+    }
+  ]
+}

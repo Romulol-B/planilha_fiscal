@@ -1,0 +1,791 @@
+{
+  "header": [
+    {
+      "formattedValue": "Data",
+      "userEnteredValue": {
+        "stringValue": "Data"
+      },
+      "userEnteredFormat": {
+        "backgroundColor": {
+          "red": 1,
+          "green": 1
+        },
+        "borders": {
+          "top": {
+            "style": "SOLID_MEDIUM",
+            "width": 2
+          },
+          "bottom": {
+            "style": "SOLID_MEDIUM",
+            "width": 2
+          },
+          "left": {
+            "style": "SOLID_MEDIUM",
+            "width": 2
+          },
+          "right": {
+            "style": "SOLID_MEDIUM",
+            "width": 2
+          }
+        },
+        "horizontalAlignment": "CENTER",
+        "verticalAlignment": "BOTTOM",
+        "textFormat": {
+          "fontFamily": "Arial",
+          "fontSize": 10
+        },
+        "backgroundColorStyle": {
+          "rgbColor": {
+            "red": 1,
+            "green": 1
+          }
+        }
+      }
+    },
+    {
+      "formattedValue": "Descritivo",
+      "userEnteredValue": {
+        "stringValue": "Descritivo"
+      },
+      "userEnteredFormat": {
+        "backgroundColor": {
+          "red": 1,
+          "green": 1
+        },
+        "borders": {
+          "top": {
+            "style": "SOLID_MEDIUM",
+            "width": 2
+          },
+          "bottom": {
+            "style": "SOLID_MEDIUM",
+            "width": 2
+          },
+          "left": {
+            "style": "SOLID_MEDIUM",
+            "width": 2
+          },
+          "right": {
+            "style": "SOLID",
+            "width": 1
+          }
+        },
+        "horizontalAlignment": "CENTER",
+        "verticalAlignment": "BOTTOM",
+        "textFormat": {
+          "fontFamily": "Arial",
+          "fontSize": 10
+        },
+        "backgroundColorStyle": {
+          "rgbColor": {
+            "red": 1,
+            "green": 1
+          }
+        }
+      }
+    },
+    {
+      "formattedValue": "Centro de custo",
+      "userEnteredValue": {
+        "stringValue": "Centro de custo"
+      },
+      "userEnteredFormat": {
+        "backgroundColor": {
+          "red": 1,
+          "green": 1
+        },
+        "borders": {
+          "top": {
+            "style": "SOLID_MEDIUM",
+            "width": 2
+          },
+          "bottom": {
+            "style": "SOLID_MEDIUM",
+            "width": 2
+          },
+          "left": {
+            "style": "SOLID_MEDIUM",
+            "width": 2
+          },
+          "right": {
+            "style": "SOLID_MEDIUM",
+            "width": 2
+          }
+        },
+        "horizontalAlignment": "CENTER",
+        "verticalAlignment": "BOTTOM",
+        "textFormat": {
+          "fontFamily": "Arial",
+          "fontSize": 10
+        },
+        "backgroundColorStyle": {
+          "rgbColor": {
+            "red": 1,
+            "green": 1
+          }
+        }
+      }
+    },
+    {
+      "formattedValue": "Vencimento",
+      "userEnteredValue": {
+        "stringValue": "Vencimento"
+      },
+      "userEnteredFormat": {
+        "backgroundColor": {
+          "red": 1,
+          "green": 1
+        },
+        "borders": {
+          "top": {
+            "style": "SOLID_MEDIUM",
+            "width": 2
+          },
+          "bottom": {
+            "style": "SOLID_MEDIUM",
+            "width": 2
+          },
+          "left": {
+            "style": "SOLID",
+            "width": 1
+          },
+          "right": {
+            "style": "SOLID_MEDIUM",
+            "width": 2
+          }
+        },
+        "horizontalAlignment": "CENTER",
+        "verticalAlignment": "BOTTOM",
+        "textFormat": {
+          "fontFamily": "Arial",
+          "fontSize": 10
+        },
+        "backgroundColorStyle": {
+          "rgbColor": {
+            "red": 1,
+            "green": 1
+          }
+        }
+      }
+    },
+    {
+      "formattedValue": "Previsto R$",
+      "userEnteredValue": {
+        "stringValue": "Previsto R$"
+      },
+      "userEnteredFormat": {
+        "backgroundColor": {
+          "red": 1,
+          "green": 1
+        },
+        "borders": {
+          "top": {
+            "style": "SOLID_MEDIUM",
+            "width": 2
+          },
+          "bottom": {
+            "style": "SOLID",
+            "width": 1
+          },
+          "left": {
+            "style": "SOLID",
+            "width": 1
+          },
+          "right": {
+            "style": "SOLID_MEDIUM",
+            "width": 2
+          }
+        },
+        "horizontalAlignment": "CENTER",
+        "verticalAlignment": "BOTTOM",
+        "textFormat": {
+          "fontFamily": "Arial",
+          "fontSize": 10
+        },
+        "backgroundColorStyle": {
+          "rgbColor": {
+            "red": 1,
+            "green": 1
+          }
+        }
+      }
+    },
+    {
+      "formattedValue": "Receita/Pagamento",
+      "userEnteredValue": {
+        "stringValue": "Receita/Pagamento"
+      },
+      "userEnteredFormat": {
+        "backgroundColor": {
+          "red": 1,
+          "green": 1
+        },
+        "borders": {
+          "top": {
+            "style": "SOLID_MEDIUM",
+            "width": 2
+          },
+          "bottom": {
+            "style": "SOLID",
+            "width": 1
+          },
+          "left": {
+            "style": "SOLID_MEDIUM",
+            "width": 2
+          },
+          "right": {
+            "style": "SOLID_MEDIUM",
+            "width": 2
+          }
+        },
+        "horizontalAlignment": "CENTER",
+        "verticalAlignment": "BOTTOM",
+        "textFormat": {
+          "fontFamily": "Arial",
+          "fontSize": 10
+        },
+        "backgroundColorStyle": {
+          "rgbColor": {
+            "red": 1,
+            "green": 1
+          }
+        }
+      }
+    },
+    {
+      "formattedValue": "Saldo R$",
+      "userEnteredValue": {
+        "stringValue": "Saldo R$"
+      },
+      "userEnteredFormat": {
+        "backgroundColor": {
+          "red": 1,
+          "green": 1
+        },
+        "borders": {
+          "top": {
+            "style": "SOLID_MEDIUM",
+            "width": 2
+          },
+          "bottom": {
+            "style": "SOLID",
+            "width": 1
+          },
+          "left": {
+            "style": "SOLID_MEDIUM",
+            "width": 2
+          },
+          "right": {
+            "style": "SOLID_MEDIUM",
+            "width": 2
+          }
+        },
+        "horizontalAlignment": "CENTER",
+        "verticalAlignment": "BOTTOM",
+        "textFormat": {
+          "fontFamily": "Arial",
+          "fontSize": 10
+        },
+        "backgroundColorStyle": {
+          "rgbColor": {
+            "red": 1,
+            "green": 1
+          }
+        }
+      }
+    }
+  ],
+  "rows": [
+    [
+      {
+        "userEnteredFormat": {
+          "numberFormat": {
+            "type": "DATE",
+            "pattern": "dd/mm/yy"
+          },
+          "borders": {
+            "top": {
+              "style": "SOLID",
+              "width": 1
+            },
+            "bottom": {
+              "style": "SOLID",
+              "width": 1
+            },
+            "left": {
+              "style": "SOLID_MEDIUM",
+              "width": 2
+            }
+          },
+          "horizontalAlignment": "CENTER",
+          "verticalAlignment": "BOTTOM",
+          "textFormat": {
+            "fontFamily": "Arial",
+            "fontSize": 10
+          }
+        }
+      },
+      {
+        "userEnteredFormat": {
+          "borders": {
+            "top": {
+              "style": "SOLID",
+              "width": 1
+            },
+            "bottom": {
+              "style": "SOLID",
+              "width": 1
+            },
+            "left": {
+              "style": "SOLID_MEDIUM",
+              "width": 2
+            }
+          },
+          "verticalAlignment": "BOTTOM",
+          "textFormat": {
+            "fontFamily": "Arial",
+            "fontSize": 10
+          }
+        }
+      },
+      {
+        "userEnteredFormat": {
+          "borders": {
+            "top": {
+              "style": "SOLID",
+              "width": 1
+            },
+            "bottom": {
+              "style": "SOLID",
+              "width": 1
+            },
+            "left": {
+              "style": "SOLID_MEDIUM",
+              "width": 2
+            },
+            "right": {
+              "style": "SOLID_MEDIUM",
+              "width": 2
+            }
+          },
+          "verticalAlignment": "BOTTOM",
+          "textFormat": {
+            "fontFamily": "Arial",
+            "fontSize": 10
+          }
+        },
+        "dataValidation": {
+          "condition": {
+            "type": "ONE_OF_RANGE",
+            "values": [
+              {
+                "userEnteredValue": "='Anal Fin - consolidado'!$B$3:$B$82"
+              }
+            ]
+          },
+          "strict": true,
+          "showCustomUi": true
+        }
+      },
+      {
+        "userEnteredFormat": {
+          "numberFormat": {
+            "type": "DATE",
+            "pattern": "dd/mm/yy"
+          },
+          "backgroundColor": {
+            "red": 0.84705883,
+            "green": 0.84705883,
+            "blue": 0.84705883
+          },
+          "borders": {
+            "top": {
+              "style": "SOLID",
+              "width": 1
+            },
+            "bottom": {
+              "style": "SOLID",
+              "width": 1
+            },
+            "left": {
+              "style": "SOLID",
+              "width": 1
+            },
+            "right": {
+              "style": "SOLID",
+              "width": 1
+            }
+          },
+          "horizontalAlignment": "CENTER",
+          "verticalAlignment": "BOTTOM",
+          "textFormat": {
+            "fontFamily": "Arial",
+            "fontSize": 10
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.84705883,
+              "green": 0.84705883,
+              "blue": 0.84705883
+            }
+          }
+        }
+      },
+      {
+        "userEnteredFormat": {
+          "numberFormat": {
+            "type": "NUMBER",
+            "pattern": "0.00_ ;[Red]\\-0.00\\ "
+          },
+          "backgroundColor": {
+            "red": 0.84705883,
+            "green": 0.84705883,
+            "blue": 0.84705883
+          },
+          "borders": {
+            "top": {
+              "style": "SOLID",
+              "width": 1
+            },
+            "bottom": {
+              "style": "SOLID",
+              "width": 1
+            },
+            "left": {
+              "style": "SOLID_MEDIUM",
+              "width": 2
+            },
+            "right": {
+              "style": "SOLID",
+              "width": 1
+            }
+          },
+          "verticalAlignment": "BOTTOM",
+          "textFormat": {
+            "fontFamily": "Arial",
+            "fontSize": 10
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.84705883,
+              "green": 0.84705883,
+              "blue": 0.84705883
+            }
+          }
+        }
+      },
+      {
+        "userEnteredFormat": {
+          "numberFormat": {
+            "type": "NUMBER",
+            "pattern": "_(#,##0.00_);[Red](#,##0.00)"
+          },
+          "borders": {
+            "top": {
+              "style": "SOLID",
+              "width": 1
+            },
+            "bottom": {
+              "style": "SOLID",
+              "width": 1
+            },
+            "left": {
+              "style": "SOLID_MEDIUM",
+              "width": 2
+            }
+          },
+          "verticalAlignment": "BOTTOM",
+          "textFormat": {
+            "fontFamily": "Arial",
+            "fontSize": 10
+          }
+        }
+      },
+      {
+        "formattedValue": "0,00 ",
+        "userEnteredValue": {
+          "formulaValue": "=IF(G1+F3=0;0;G1+F3)"
+        },
+        "userEnteredFormat": {
+          "numberFormat": {
+            "type": "NUMBER",
+            "pattern": "#,##0.00_ ;[Red]\\-#,##0.00\\ "
+          },
+          "borders": {
+            "top": {
+              "style": "SOLID_MEDIUM",
+              "width": 2
+            },
+            "bottom": {
+              "style": "SOLID",
+              "width": 1
+            },
+            "left": {
+              "style": "SOLID_MEDIUM",
+              "width": 2
+            },
+            "right": {
+              "style": "SOLID_MEDIUM",
+              "width": 2
+            }
+          },
+          "verticalAlignment": "BOTTOM",
+          "textFormat": {
+            "fontFamily": "Arial",
+            "fontSize": 10
+          }
+        }
+      }
+    ],
+    [
+      {
+        "userEnteredFormat": {
+          "numberFormat": {
+            "type": "DATE",
+            "pattern": "dd/mm/yy"
+          },
+          "borders": {
+            "top": {
+              "style": "SOLID",
+              "width": 1
+            },
+            "bottom": {
+              "style": "SOLID",
+              "width": 1
+            },
+            "left": {
+              "style": "SOLID_MEDIUM",
+              "width": 2
+            }
+          },
+          "horizontalAlignment": "CENTER",
+          "verticalAlignment": "BOTTOM",
+          "textFormat": {
+            "fontFamily": "Arial",
+            "fontSize": 10
+          }
+        }
+      },
+      {
+        "userEnteredFormat": {
+          "borders": {
+            "top": {
+              "style": "SOLID",
+              "width": 1
+            },
+            "bottom": {
+              "style": "SOLID",
+              "width": 1
+            },
+            "left": {
+              "style": "SOLID_MEDIUM",
+              "width": 2
+            }
+          },
+          "verticalAlignment": "BOTTOM",
+          "textFormat": {
+            "fontFamily": "Arial",
+            "fontSize": 10
+          }
+        }
+      },
+      {
+        "userEnteredFormat": {
+          "borders": {
+            "top": {
+              "style": "SOLID",
+              "width": 1
+            },
+            "bottom": {
+              "style": "SOLID",
+              "width": 1
+            },
+            "left": {
+              "style": "SOLID_MEDIUM",
+              "width": 2
+            },
+            "right": {
+              "style": "SOLID_MEDIUM",
+              "width": 2
+            }
+          },
+          "verticalAlignment": "BOTTOM",
+          "textFormat": {
+            "fontFamily": "Arial",
+            "fontSize": 10
+          }
+        },
+        "dataValidation": {
+          "condition": {
+            "type": "ONE_OF_RANGE",
+            "values": [
+              {
+                "userEnteredValue": "='Anal Fin - consolidado'!$B$3:$B$82"
+              }
+            ]
+          },
+          "strict": true,
+          "showCustomUi": true
+        }
+      },
+      {
+        "userEnteredFormat": {
+          "numberFormat": {
+            "type": "DATE",
+            "pattern": "dd/mm/yy"
+          },
+          "backgroundColor": {
+            "red": 0.84705883,
+            "green": 0.84705883,
+            "blue": 0.84705883
+          },
+          "borders": {
+            "top": {
+              "style": "SOLID",
+              "width": 1
+            },
+            "bottom": {
+              "style": "SOLID",
+              "width": 1
+            },
+            "left": {
+              "style": "SOLID",
+              "width": 1
+            },
+            "right": {
+              "style": "SOLID",
+              "width": 1
+            }
+          },
+          "horizontalAlignment": "CENTER",
+          "verticalAlignment": "BOTTOM",
+          "textFormat": {
+            "fontFamily": "Arial",
+            "fontSize": 10
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.84705883,
+              "green": 0.84705883,
+              "blue": 0.84705883
+            }
+          }
+        }
+      },
+      {
+        "userEnteredFormat": {
+          "numberFormat": {
+            "type": "NUMBER",
+            "pattern": "0.00_ ;[Red]\\-0.00\\ "
+          },
+          "backgroundColor": {
+            "red": 0.84705883,
+            "green": 0.84705883,
+            "blue": 0.84705883
+          },
+          "borders": {
+            "top": {
+              "style": "SOLID",
+              "width": 1
+            },
+            "bottom": {
+              "style": "SOLID",
+              "width": 1
+            },
+            "left": {
+              "style": "SOLID_MEDIUM",
+              "width": 2
+            },
+            "right": {
+              "style": "SOLID",
+              "width": 1
+            }
+          },
+          "verticalAlignment": "BOTTOM",
+          "textFormat": {
+            "fontFamily": "Arial",
+            "fontSize": 10
+          },
+          "backgroundColorStyle": {
+            "rgbColor": {
+              "red": 0.84705883,
+              "green": 0.84705883,
+              "blue": 0.84705883
+            }
+          }
+        }
+      },
+      {
+        "userEnteredFormat": {
+          "numberFormat": {
+            "type": "NUMBER",
+            "pattern": "_(#,##0.00_);[Red](#,##0.00)"
+          },
+          "borders": {
+            "top": {
+              "style": "SOLID",
+              "width": 1
+            },
+            "bottom": {
+              "style": "SOLID",
+              "width": 1
+            },
+            "left": {
+              "style": "SOLID_MEDIUM",
+              "width": 2
+            }
+          },
+          "verticalAlignment": "BOTTOM",
+          "textFormat": {
+            "fontFamily": "Arial",
+            "fontSize": 10
+          }
+        }
+      },
+      {
+        "formattedValue": "0,00 ",
+        "userEnteredValue": {
+          "formulaValue": "=IF(E4+F4=0;0;G3+F4)"
+        },
+        "userEnteredFormat": {
+          "numberFormat": {
+            "type": "NUMBER",
+            "pattern": "#,##0.00_ ;[Red]\\-#,##0.00\\ "
+          },
+          "borders": {
+            "top": {
+              "style": "SOLID",
+              "width": 1
+            },
+            "bottom": {
+              "style": "SOLID",
+              "width": 1
+            },
+            "left": {
+              "style": "SOLID_MEDIUM",
+              "width": 2
+            },
+            "right": {
+              "style": "SOLID_MEDIUM",
+              "width": 2
+            }
+          },
+          "verticalAlignment": "BOTTOM",
+          "textFormat": {
+            "fontFamily": "Arial",
+            "fontSize": 10
+          }
+        }
+      }
+    ]
+  ],
+  "options": [
+    "FATURAMENTO BRUTO MENSAL",
+    "VALORES FUTURO",
+    "Conta a receber",
+    "Conta  a pagar",
+    "GASTOS FIXOS",
+    "GASTOS VARIÁVEL",
+    "DESPESAS NÃO OPERACIONAL"
+  ]
+}

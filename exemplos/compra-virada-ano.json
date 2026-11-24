@@ -1,0 +1,10 @@
+{
+  "id": "teste-virada",
+  "data": "2026-11-21",
+  "parcelas": 3,
+  "primeiro_vencimento": "2026-12-10",
+  "produtos": [
+    {"id": "cera", "descricao": "TESTE - Cera", "quantidade": 2, "centro_custo": "Conta  a pagar", "valor_total": "100,00"},
+    {"id": "pavio", "descricao": "TESTE - Pavio", "quantidade": 10, "centro_custo": "Conta  a pagar", "valor_total": "10,01"}
+  ]
+}
