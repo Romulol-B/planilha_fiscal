@@ -1,0 +1,1 @@
+"""Infraestrutura compartilhada pelas integrações."""

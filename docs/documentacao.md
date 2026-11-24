@@ -1,22 +1,30 @@
-# Objetivos hipóteses e Arquitetura
-## Hipóteses centrais
-Gerar valor sem 
-### Arquitetura
+# Arquitetura do Velas
 
-#### Base de Dados 
-Base de dados atual é uma planilha no google sheets. 
-Como o cliente possui preferencia em um sistema compreensível e familiar assim como o cliente já utiliza este ambiente , muda-lo seria um trabalho que não geraria valor imediato portanto, apesar de outros sistemas podem se mostrar mais confiáveis vamos mate-lo por enquanto. 
-[[Organização da Planilha]]
+O projeto automatiza o registro de compras e o acompanhamento do fluxo de caixa.
+O Google Sheets é a interface de trabalho para quem consulta e atualiza as finanças.
 
-O conceito seria de evitar um trabalho manual de controle de fluxo de caixa compras e vendas , principalmente de compras.
-O produto precisa ter o seguinte fluxo a empresa faz a compra e já e registrado a compra e o valor na tabela de fluxo de caixa.
+- `velas_notas_fiscais` lê NF-e, valida totais e gera arquivos JSON de compra.
+- `velas_sheets` audita o modelo e planeja compras e pagamentos. A aba
+  `Parcelas` mantém o histórico. As abas mensais recebem as projeções.
+- `velas_common` reúne o bloqueio local usado pela CLI durante a gravação.
+- `exemplos` contém XMLs fictícios, entradas JSON e um modelo XLSX de demonstração.
 
-### Consulta de histórico de compras por meio de APIs.
-essa era uma das ideia inicias porem, com o mercado livre não possuindo uma api disponível(o formulário está fechado por enquanto. )
-#### Api do Mercado Livre 
-Essa era uma ideia inicial para acompanhar as saídas e consultar o histórico de compras porem, a necessidade de preencher com um formulário 
-#### API da shopee (Afiliado)
-E preciso entrar em contato com a shopee e essa poderia ser uma das metas.
+A validação e a divisão de valores em centavos acontecem antes de escrever no
+Google Sheets. Os lançamentos usam identificadores estáveis para que uma compra
+ou baixa já aplicada seja reconhecida. Cada arquivo recebe um lote de alterações
+e a aba de histórico é atualizada por último. Em uma operação com mais de um
+arquivo, o diário local permite conferir e retomar a gravação.
 
-### Extração Manual de dados
-#### Shopee. 
+## Verificação
+
+```bash
+python -m unittest discover -s tests -v
+python -m velas_sheets auditar-modelo --xlsx exemplos/modelo-demonstracao.xlsx
+```
+
+O teste de recálculo usa o LibreOffice Calc quando disponível. Para regenerar
+o modelo XLSX a partir do código:
+
+```bash
+python -m scripts.gerar_modelo_demo --saida exemplos/modelo-demonstracao.xlsx
+```

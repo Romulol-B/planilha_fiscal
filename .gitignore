@@ -13,3 +13,10 @@ client_secret*.json
 *service-account*.json
 dados/
 saidas/
+Termo_de_Abertura_de_Projeto.md
+integracao_mercado_livre
+/velas_ml/
+tests/test_integracao.py
+agendamento/
+config.exemplo.toml
+/PlanilhaFinanceira.xlsx

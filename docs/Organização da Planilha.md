@@ -39,7 +39,7 @@ Não lançar uma saída adicional de R$ 90 em janeiro: isso duplicaria o valor d
 ### Valores e arredondamento
 
 - No cadastro, informar o **valor total final de cada linha de produto**, já considerando a quantidade, os descontos, o frete e os juros atribuídos a ela. Não usar o preço unitário nesse campo.
-- O rateio de frete, descontos e juros entre produtos ainda é informado manualmente.
+- No cadastro manual, atribua frete, descontos e juros a cada produto. O conversor de NF-e lê frete e descontos do XML.
 - Dividir em centavos e distribuir os centavos restantes nas primeiras parcelas: R$ 100 em três parcelas resulta em R$ 33,34 + R$ 33,33 + R$ 33,33.
 - Na CLI, informar datas como `AAAA-MM-DD` e valores sem separador de milhar. A planilha armazena datas e valores como células numéricas, com formatação de exibição.
 
@@ -51,4 +51,4 @@ Não lançar uma saída adicional de R$ 90 em janeiro: isso duplicaria o valor d
 - Para lançamentos gerenciados pela CLI, fazer a baixa pela CLI; alterações manuais podem gerar conflitos nas próximas operações.
 - Pagamentos parciais, cancelamentos, estornos e renegociações ainda não são tratados nesta versão.
 
-Instruções de configuração e comandos: [[GOOGLE_SHEETS]].
+Instruções de configuração e comandos: [Google Sheets](GOOGLE_SHEETS.md).

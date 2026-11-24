@@ -1,0 +1,75 @@
+<?xml version='1.0' encoding='utf-8'?>
+<NFe xmlns="http://www.portalfiscal.inf.br/nfe">
+  <!-- Exemplo fictício de teste. Não é um documento fiscal. -->
+  <infNFe Id="NFe00000000000000000000000000000000000000000002" versao="4.00">
+    <ide>
+      <mod>55</mod>
+      <nNF>2</nNF>
+      <dhEmi>2026-11-22T10:00:00-03:00</dhEmi>
+      <finNFe>1</finNFe>
+    </ide>
+    <emit>
+      <xNome>Fornecedor fictício</xNome>
+    </emit>
+    <det nItem="1">
+      <prod>
+        <xProd>Cera vegetal</xProd>
+        <qCom>2</qCom>
+        <vProd>70.00</vProd>
+        <vDesc>5.00</vDesc>
+        <vFrete>2.50</vFrete>
+        <indTot>1</indTot>
+      </prod>
+      <vItem>67.50</vItem>
+    </det>
+    <det nItem="2">
+      <prod>
+        <xProd>Frasco de vidro</xProd>
+        <qCom>4</qCom>
+        <vProd>36.00</vProd>
+        <vDesc>0.00</vDesc>
+        <vFrete>3.00</vFrete>
+        <indTot>1</indTot>
+      </prod>
+      <vItem>39.00</vItem>
+    </det>
+    <det nItem="3">
+      <prod>
+        <xProd>Caixa para embalagem</xProd>
+        <qCom>1</qCom>
+        <vProd>17.00</vProd>
+        <vDesc>0.00</vDesc>
+        <vFrete>1.51</vFrete>
+        <indTot>1</indTot>
+      </prod>
+      <vItem>18.51</vItem>
+    </det>
+    <total>
+      <ICMSTot>
+        <vProd>123.00</vProd>
+        <vDesc>5.00</vDesc>
+        <vFrete>7.01</vFrete>
+        <vIPI>0.00</vIPI>
+        <vNF>125.01</vNF>
+      </ICMSTot>
+      <vNFTot>125.01</vNFTot>
+    </total>
+    <cobr>
+      <dup>
+        <nDup>001</nDup>
+        <dVenc>2026-12-10</dVenc>
+        <vDup>42.00</vDup>
+      </dup>
+      <dup>
+        <nDup>002</nDup>
+        <dVenc>2027-01-10</dVenc>
+        <vDup>41.50</vDup>
+      </dup>
+      <dup>
+        <nDup>003</nDup>
+        <dVenc>2027-02-10</dVenc>
+        <vDup>41.51</vDup>
+      </dup>
+    </cobr>
+  </infNFe>
+</NFe>

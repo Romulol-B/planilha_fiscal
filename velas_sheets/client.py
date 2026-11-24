@@ -3,6 +3,38 @@ from pathlib import Path
 
 SCOPE = 'https://www.googleapis.com/auth/spreadsheets'
 CELL_FIELDS = 'userEnteredValue,formattedValue,userEnteredFormat,dataValidation,chipRuns,note'
+AUDIT_CELL_FIELDS = 'userEnteredValue,effectiveValue(errorValue),dataValidation'
+AUDIT_BATCH_CELLS = 100_000
+
+
+class AuditSnapshot:
+    """Leituras da mesma auditoria reutilizam as células obtidas do Google."""
+
+    def __init__(self, metadata):
+        self.meta = metadata
+        self.rows = {sheet['properties']['title']: {} for sheet in metadata['sheets']}
+
+    def metadata(self):
+        return self.meta
+
+    def add(self, response):
+        for sheet in response.get('sheets', []):
+            rows = self.rows[sheet['properties']['title']]
+            for block in sheet.get('data', []):
+                first_row = block.get('startRow', 0) + 1
+                first_col = block.get('startColumn', 0)
+                for row, data in enumerate(block.get('rowData', []), first_row):
+                    cells = {col: cell for col, cell in enumerate(data.get('values', []), first_col) if cell}
+                    if cells:
+                        rows.setdefault(row, {}).update(cells)
+
+    def cells(self, title, start_row, end_row, start_col=0, end_col=7):
+        rows = self.rows[title]
+        result = []
+        for row in range(start_row, end_row + 1):
+            cells = rows.get(row, {})
+            result.append([cells.get(col, {}) for col in range(start_col, end_col)])
+        return result
 
 
 class Client:
@@ -54,6 +86,44 @@ class Client:
         return self.request('GET', params={
             'fields': 'spreadsheetId,spreadsheetUrl,properties(title,locale),sheets(properties,merges)',
         })
+
+    def audit_snapshot(self):
+        from .model import column, quote_sheet
+
+        metadata = self.metadata()
+        snapshot = AuditSnapshot(metadata)
+        ranges = []
+        size = 0
+
+        def read_ranges():
+            snapshot.add(self.request('GET', params={
+                'ranges': ranges,
+                'includeGridData': 'true',
+                'fields': ('sheets(properties(title),'
+                           f'data(startRow,startColumn,rowData(values({AUDIT_CELL_FIELDS}))))'),
+            }))
+
+        # Limita o volume e o comprimento da URL mesmo em abas grandes.
+        for sheet in metadata['sheets']:
+            props = sheet['properties']
+            grid = props.get('gridProperties')
+            if not grid:
+                continue
+            title = quote_sheet(props['title'])
+            width = grid['columnCount']
+            rows_per_range = max(1, AUDIT_BATCH_CELLS // width)
+            for first in range(1, grid['rowCount'] + 1, rows_per_range):
+                last = min(first + rows_per_range - 1, grid['rowCount'])
+                area = width * (last - first + 1)
+                if ranges and (size + area > AUDIT_BATCH_CELLS or len(ranges) == 12):
+                    read_ranges()
+                    ranges = []
+                    size = 0
+                ranges.append(f'{title}!A{first}:{column(width - 1)}{last}')
+                size += area
+        if ranges:
+            read_ranges()
+        return snapshot
 
     def cells(self, title, start_row, end_row, start_col=0, end_col=7):
         from .model import column, quote_sheet

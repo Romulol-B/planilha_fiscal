@@ -1,11 +1,11 @@
 """Planejamento de gravações e projeções mensais das parcelas."""
-import copy
+from dataclasses import replace
 from datetime import date
 import secrets
-import re
 
-from .installments import (HEADERS, LEDGER, MONTHS, cell, date_text, iso, purchase,
+from .installments import (HEADERS, LEDGER, MONTHS, cell, date_text, iso, purchase_records, Parcela,
                            serial, status, values)
+from .audit import check_month, locate_total, report_coverage
 from .model import HEADERS as FC_HEADERS, find_sheet, validation_options
 
 TECH_HEADERS = ['velas_parcela_id', 'velas_tipo']
@@ -23,8 +23,9 @@ def update(sheet_id, row, col, cells):
 
 
 class Planner:
-    def __init__(self, config, factory):
+    def __init__(self, config, factory, skip_balance_check=False):
         self.config, self.factory = config, factory
+        self.skip_balance_check = skip_balance_check
         self.clients, self.metas, self.steps, self.blocks = {}, {}, {}, {}
         self.master = config.get('principal_id', config['planilha_id'])
         self.years = {int(y): s for y, s in config.get('anos', {}).items()}
@@ -33,6 +34,7 @@ class Planner:
         self.summary = []
         self.month_blocks = {}
         self.options = {}
+        self.report_cache = {}
 
     def client(self, book):
         if book not in self.clients:
@@ -109,7 +111,7 @@ class Planner:
                 raise ValueError(f'Parcelas: registro incompleto na linha {row}.')
             if (vals[12] is None) != (vals[13] is None):
                 raise ValueError(f'Parcelas: pagamento incompleto na linha {row}.')
-            records[vals[0]] = (row, vals)
+            records[vals[0]] = (row, Parcela.from_sheet(vals))
         return block, records
 
     def destination(self, day):
@@ -119,16 +121,16 @@ class Planner:
         return self.years[dt.year], 'FC ' + MONTHS[dt.month-1]
 
     def projections(self, record):
-        due = self.destination(record[9])
-        desc = f'{record[3]} — parcela {record[6]}/{record[7]}'
-        planned = [record[5], desc, record[8], record[9], record[10], None]
+        due = self.destination(record.vencimento)
+        desc = f'{record.descricao} — parcela {record.numero}/{record.total_parcelas}'
+        planned = [record.data_compra, desc, record.centro_custo, record.vencimento, (-record.previsto_centavos / 100), None]
         result = {(due, 'previsto'): planned}
-        if record[12] is not None:
-            paid = self.destination(record[12])
+        if record.data_pagamento is not None:
+            paid = self.destination(record.data_pagamento)
             if paid == due:
-                planned[0], planned[5] = record[12], record[13]
+                planned[0], planned[5] = record.data_pagamento, (-record.pago_centavos / 100 if record.pago_centavos is not None else None)
             else:
-                result[(paid, 'pagamento')] = [record[12], desc, record[8], record[9], None, record[13]]
+                result[(paid, 'pagamento')] = [record.data_pagamento, desc, record.centro_custo, record.vencimento, None, (-record.pago_centavos / 100 if record.pago_centavos is not None else None)]
         return result
 
     def month(self, book, title):
@@ -137,17 +139,12 @@ class Planner:
             return self.month_blocks[key]
         self.client(book)
         sheet = find_sheet(self.metas[book], title)
-        end = min(110, sheet['properties']['gridProperties']['rowCount'])
-        probe = self.client(book).cells(title, 2, end, 0, 9)
-        totals = []
-        for row, cells in enumerate(probe, 2):
-            formula = cells[5].get('userEnteredValue', {}).get('formulaValue', '').replace('$', '').replace(' ', '').upper()
-            match = re.fullmatch(r'=SUM\(F3:F(\d+)\)', formula)
-            if match and int(match[1]) == row-1:
-                totals.append(row)
-        if len(totals) != 1:
-            raise ValueError(f'{title}: total de pagamentos não identificado com segurança.')
-        block = self.block(book, title, 2, totals[0], 9)
+        total = locate_total(self.client(book), title, sheet['properties']['gridProperties']['rowCount'])
+        if not self.skip_balance_check:
+            check_month(self.client(book), title, total)
+        report_coverage(self.client(book), self.metas[book], title, total,
+                        self.report_cache.setdefault(book, {}))
+        block = self.block(book, title, 2, total, 9)
         self.month_blocks[key] = block
         if values(block['after'][0][:7]) != FC_HEADERS:
             raise ValueError(f'{title}: cabeçalhos diferentes do modelo.')
@@ -175,17 +172,17 @@ class Planner:
             book, title = destination
             block = self.month(book, title)
             candidates = [(i+2, cells) for i, cells in enumerate(block['after'][1:-1], 1)
-                          if values(cells[7:9]) == [record[0], kind]]
+                          if values(cells[7:9]) == [record.id, kind]]
             if len(candidates) > 1:
-                raise ValueError(f'{title}: parcela duplicada {record[0]}.')
+                raise ValueError(f'{title}: parcela duplicada {record.id}.')
             prior = previous.get((destination, kind))
             if candidates:
                 row, cells = candidates[0]
                 if prior is None or values(cells[:6]) != prior:
-                    raise ValueError(f'{title}: conflito com edição existente de {record[0]}.')
+                    raise ValueError(f'{title}: conflito com edição existente de {record.id}.')
             else:
                 if prior is not None:
-                    raise ValueError(f'{title}: lançamento de {record[0]} desapareceu. Corrija antes de continuar.')
+                    raise ValueError(f'{title}: lançamento de {record.id} desapareceu. Corrija antes de continuar.')
                 available = [(i+2, c) for i, c in enumerate(block['after'][1:-1], 1)
                              if not any(c[j].get('userEnteredValue') or c[j].get('note') or c[j].get('chipRuns') for j in (0,1,2,3,4,5,7,8))]
                 if not available:
@@ -217,13 +214,13 @@ class Planner:
                     if val not in self.options[key]:
                         raise ValueError(f'{title}, linha {row}: valor {val!r} fora da validação.')
                 self.put(book, block, row, col, val)
-            self.put(book, block, row, 7, record[0])
+            self.put(book, block, row, 7, record.id)
             self.put(book, block, row, 8, kind)
-            self.summary.append({'id': record[0], 'planilha': book, 'aba': title, 'linha': row,
-                                 'tipo': kind, 'vencimento': date_text(record[9]), 'previsto': vals[4], 'pagamento': vals[5]})
+            self.summary.append({'id': record.id, 'planilha': book, 'aba': title, 'linha': row,
+                                 'tipo': kind, 'vencimento': date_text(record.vencimento), 'previsto': vals[4], 'pagamento': vals[5]})
 
     def write_record(self, block, row, record):
-        for col, val in enumerate(record):
+        for col, val in enumerate(record.to_sheet()):
             if col == 14:
                 val = f'=IF(M{row}<>"";"paga";IF(J{row}<TODAY();"atrasada";"pendente"))'
                 self.put(self.master, block, row, col, val, formula=True)
@@ -231,16 +228,16 @@ class Planner:
                 self.put(self.master, block, row, col, val)
 
     def register(self, raw):
-        wanted = purchase(raw)
+        wanted = purchase_records(raw)
         block, existing = self.ledger(create=True)
-        group = {key: r for key, r in existing.items() if r[1][1] == raw['id']}
-        if group and set(group) != {r[0] for r in wanted}:
+        group = {key: r for key, r in existing.items() if r[1].compra == raw['id']}
+        if group and set(group) != {r.id for r in wanted}:
             raise ValueError('Conflito: produtos ou parcelas da compra existente são diferentes.')
         for record in wanted:
-            found = existing.get(record[0])
+            found = existing.get(record.id)
             old = found[1] if found else None
-            if old and (old[:12] != record[:12] or old[15] != record[15]):
-                raise ValueError(f'Conflito no cadastro: {record[0]}.')
+            if old and (replace(old, data_pagamento=None, pago_centavos=None) != record):
+                raise ValueError(f'Conflito no cadastro: {record.id}.')
             desired = old or record
             self.project(old, desired)
             if found:
@@ -257,12 +254,11 @@ class Planner:
         if key not in records:
             raise ValueError(f'Parcela não encontrada: {key}')
         row, old = records[key]
-        if paid < old[5]:
+        if paid < old.data_compra:
             raise ValueError('Pagamento não pode ser anterior à compra.')
-        if old[12] is not None and (old[12] != paid or old[13] != old[10]):
+        if old.data_pagamento is not None and (old.data_pagamento != paid or old.pago_centavos != old.previsto_centavos):
             raise ValueError('Parcela já paga com dados diferentes. Correções não são suportadas nesta versão.')
-        desired = copy.deepcopy(old)
-        desired[12], desired[13] = paid, old[10]
+        desired = replace(old, data_pagamento=paid, pago_centavos=old.previsto_centavos)
         self.project(old, desired)
         self.write_record(block, row, desired)
         return self.finish()
@@ -275,12 +271,12 @@ class Planner:
             raise ValueError('Data inicial posterior à final.')
         result = []
         for _, r in records.values():
-            due, state = date_text(r[9]), status(r)
-            if compra and r[1] != compra or desde and due < desde or ate and due > ate or situacao and state != situacao:
+            due, state = date_text(r.vencimento), status(r)
+            if compra and r.compra != compra or desde and due < desde or ate and due > ate or situacao and state != situacao:
                 continue
-            result.append({'id': r[0], 'descricao': r[3], 'parcela': f'{r[6]}/{r[7]}', 'vencimento': due,
-                           'previsto': r[10], 'status': state, 'data_pagamento': date_text(r[12]) if r[12] is not None else None,
-                           'pago': r[13]})
+            result.append({'id': r.id, 'descricao': r.descricao, 'parcela': f'{r.numero}/{r.total_parcelas}', 'vencimento': due,
+                           'previsto': (-r.previsto_centavos / 100), 'status': state, 'data_pagamento': date_text(r.data_pagamento) if r.data_pagamento is not None else None,
+                           'pago': (-r.pago_centavos / 100 if r.pago_centavos is not None else None)})
         return sorted(result, key=lambda r: (r['vencimento'], r['id']))
 
     def finish(self):
@@ -303,5 +299,7 @@ class Planner:
                 ])
         # Arquivo principal por último: o histórico só é confirmado após as projeções.
         books = sorted(self.steps, key=lambda b: (b == self.master, b))
-        return {'version': 1, 'summary': self.summary,
-                'steps': [self.steps[b] for b in books if self.steps[b]['requests']], 'state': 'pending'}
+        from .operations_v2 import compile_plan
+        return compile_plan({'version': 1, 'summary': self.summary,
+                'skip_balance_check': self.skip_balance_check,
+                'steps': [self.steps[b] for b in books] if any(s['requests'] for s in self.steps.values()) else [], 'state': 'pending'})

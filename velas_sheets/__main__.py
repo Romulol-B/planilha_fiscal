@@ -86,12 +86,28 @@ def main(argv=None):
     edit = commands.add_parser('editar', help='Mostra as alterações de um JSON; grava somente com --aplicar')
     edit.add_argument('arquivo', type=Path)
     edit.add_argument('--aplicar', action='store_true')
+    audit_command = commands.add_parser('auditar-modelo', help='Audita fórmulas e estrutura sem gravar')
+    audit_command.add_argument('--xlsx', type=Path, help='Audita arquivo local sem credenciais')
     from .finance_cli import add_commands, run
     add_commands(commands)
     args = parser.parse_args(argv)
     try:
+        if args.command == 'auditar-modelo' and args.xlsx:
+            from .audit import XlsxReader, audit
+            issues = audit(XlsxReader(args.xlsx))
+            print('\n'.join(issues) if issues else 'Modelo local: auditoria OK.')
+            return 1 if issues else 0
         config = load_config(args.config)
-        if args.command in ('compra', 'pagar', 'parcelas', 'retomar'):
+        if args.command == 'auditar-modelo':
+            from .audit import audit
+            issues = []
+            for book in dict.fromkeys([config.get('principal_id', config['planilha_id']), *config['anos'].values()]):
+                snapshot = Client(book, config['credenciais']).audit_snapshot()
+                title = snapshot.meta['properties']['title']
+                issues.extend(f'{title}: {issue}' for issue in audit(snapshot))
+            print('\n'.join(issues) if issues else 'Google Sheets: auditoria OK.')
+            return 1 if issues else 0
+        if args.command in ('compra', 'pagar', 'parcelas', 'retomar', 'diagnosticar-operacao', 'cancelar-operacao'):
             return run(args, config)
         edits = load_edits(args.arquivo) if args.command == 'editar' else None
         client = Client(config['planilha_id'], config['credenciais'])

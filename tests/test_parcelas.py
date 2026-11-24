@@ -7,6 +7,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
+from velas_sheets.audit import balance_formula, total_formula
 from velas_sheets.finance import Planner
 from velas_sheets.installments import HEADERS, MONTHS, purchase, serial, status, values
 from velas_sheets.operations import apply, pending
@@ -36,9 +37,13 @@ class MemorySheets:
                 self.rows[title][2] = copy.deepcopy(FIXTURE['header']) + [{}, {}]
                 for row in range(3, 97):
                     cells = copy.deepcopy(FIXTURE['rows'][1]) + [{}, {}]
-                    cells[6]['userEnteredValue'] = {'formulaValue': f'=IF(E{row}+F{row}=0;0;G{row-1}+F{row})'}
+                    cells[6]['userEnteredValue'] = {'formulaValue': balance_formula(row)}
                     self.rows[title][row] = cells
                 self.rows[title][97] = [{} for _ in range(9)]
+                self.rows[title][97][6] = {'userEnteredValue': {'formulaValue': total_formula(97)}}
+                self.rows[title][1] = [{} for _ in range(9)]
+                if i > 0:
+                    self.rows[title][1][6] = {'userEnteredValue': {'formulaValue': f"='FC {MONTHS[i-1]}'!G97"}}
                 self.rows[title][97][5] = {'userEnteredValue': {'formulaValue': '=SUM(F3:F96)'}}
             else:
                 for row, option in enumerate(FIXTURE['options'], 3):
@@ -118,7 +123,8 @@ class InstallmentTests(unittest.TestCase):
         self.assertEqual(pending(self.directory), [])
         journal = json.loads(next(self.directory.glob('*.json')).read_text())
         self.assertEqual(journal['state'], 'complete')
-        self.assertIn('before', journal['steps'][0]['blocks'][0])
+        self.assertEqual(journal['version'], 2)
+        self.assertIn('before', journal['steps'][0]['tables'][0]['actions'][0])
 
     def test_rounding_multiple_products_and_quantity(self):
         raw = buy()
@@ -202,12 +208,11 @@ class InstallmentTests(unittest.TestCase):
         self.assertEqual(self.books['y27'].calls, calls)
         self.assertEqual(len(self.planner().listing(situacao='paga')), 1)
 
-    def test_concurrent_change_blocks_all_writes(self):
+    def test_unrelated_concurrent_change_is_preserved(self):
         plan = self.planner().register(buy())
         self.books['y26'].rows['FC MAR'][5][1]['userEnteredValue'] = {'stringValue': 'Alterado'}
-        with self.assertRaisesRegex(RuntimeError, 'mudou'):
-            apply(plan, self.directory, self.factory)
-        self.assertEqual(self.books['y26'].calls, 0)
+        apply(plan, self.directory, self.factory)
+        self.assertEqual(self.books['y26'].rows['FC MAR'][5][1]['userEnteredValue']['stringValue'], 'Alterado')
 
     def test_technical_columns_and_formulas_protected(self):
         self.books['y26'].rows['FC FEV'][50][8]['userEnteredValue'] = {'stringValue': 'Não apagar'}
@@ -215,22 +220,27 @@ class InstallmentTests(unittest.TestCase):
             self.planner().register(buy())
         self.books['y26'].rows['FC FEV'][50][8].clear()
         self.books['y26'].rows['FC FEV'][3][6].pop('userEnteredValue')
-        with self.assertRaisesRegex(ValueError, 'saldo ausente'):
+        with self.assertRaisesRegex(ValueError, 'saldo incompatível'):
             self.planner().register(buy())
 
     def test_changed_total_position_is_respected(self):
         book = self.books['y26']
         book.rows['FC FEV'][96] = book.rows['FC FEV'].pop(97)
         book.rows['FC FEV'][96][5]['userEnteredValue']['formulaValue'] = '=SUM(F3:F95)'
+        book.rows['FC FEV'][96][6]['userEnteredValue']['formulaValue'] = total_formula(96)
         self.register()
         self.assertEqual(values(book.cells('FC FEV', 96, 96)[0])[5], '=SUM(F3:F95)')
 
     def test_category_list_change_prevents_write(self):
         plan = self.planner().register(buy())
-        self.books['y26'].rows['Anal Fin - consolidado'][3][1]['userEnteredValue'] = {'stringValue': 'Alterado'}
-        with self.assertRaisesRegex(RuntimeError, 'mudou'):
+        book = self.books['y26']
+        row = next(r for r, cells in book.rows['Anal Fin - consolidado'].items() if cells[1]['userEnteredValue']['stringValue'] == 'Conta  a pagar')
+        book.rows['Anal Fin - consolidado'][row][1]['userEnteredValue'] = {'stringValue': 'Alterado'}
+        book.rows['Anal Fin - consolidado'][row][1]['formattedValue'] = 'Alterado'
+        with self.assertRaisesRegex(RuntimeError, 'Conflito'):
             apply(plan, self.directory, self.factory)
         self.assertEqual(self.books['y26'].calls, 0)
+        self.assertFalse(self.directory.exists())
 
     def test_cli_preview_apply_listing_and_pending_resume(self):
         from unittest.mock import patch

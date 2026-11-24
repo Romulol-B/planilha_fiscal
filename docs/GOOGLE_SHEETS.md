@@ -1,12 +1,12 @@
-# CLI de teste do Google Sheets
+# Integração com Google Sheets
 
-Primeira etapa da futura importação de compras da Shopee por CSV: conectar ao
-Google Sheets, ler o modelo financeiro e editar linhas em uma aba de teste.
-Requer Python 3.11+ e a Google Sheets API. Não importa CSV nesta etapa.
+A CLI audita o modelo financeiro e registra compras parceladas e pagamentos.
+Requer Python 3.11+ e acesso à Google Sheets API para os comandos online.
 
-O arquivo local `config.sheets.toml` já aponta para a planilha encontrada no Drive.
-Em outra instalação, copie `config.sheets.exemplo.toml` para `config.sheets.toml`
-e preencha o ID que aparece entre `/d/` e `/edit` na URL da planilha.
+Copie `config.sheets.exemplo.toml` para `config.sheets.toml` e preencha o ID
+que aparece entre `/d/` e `/edit` na URL da planilha. Para uma demonstração,
+importe o [modelo XLSX fictício](../exemplos/modelo-demonstracao.xlsx) como
+planilha nativa do Google Sheets e trabalhe com cópias de teste.
 
 ## Configuração do Google, uma única vez
 
@@ -90,10 +90,10 @@ Antes da gravação, os valores e metadados anteriores são salvos em
 `dados/sheets_backups/`, com permissão local restrita. Essa cópia serve para
 inspeção e recuperação manual; não há comando de restauração nesta versão.
 
-## Limites deste protótipo
+## Limites da edição direta
 
-- Escrita restrita à aba configurada com prefixo `TESTE `; não lança compras reais
-  nas abas mensais nem importa CSV. O JSON permite até 20 linhas por execução.
+- O comando `editar` opera na aba com prefixo `TESTE `. O JSON permite até 20
+  linhas por execução. Use `compra` e `pagar` para as abas mensais.
 - Não insere linhas, não altera totais e não sobrescreve fórmulas ou chips.
 - A releitura detecta mudanças ocorridas durante o preparo, mas não é um bloqueio
   transacional contra edição simultânea. Use este teste com um operador por vez.
@@ -102,8 +102,6 @@ inspeção e recuperação manual; não há comando de restauração nesta vers�
   o ID e se a planilha foi compartilhada com a conta de serviço.
 - A importação futura precisará mapear o CSV real da Shopee, identificar pedidos
   sem duplicar lançamentos e distinguir compra, vencimento e pagamento.
-
-A integração anterior com Mercado Livre continua disponível em `velas_ml`.
 
 ## Testes locais
 
@@ -115,19 +113,17 @@ Os testes da CLI usam um cliente simulado para verificar prévia sem escrita,
 valores numéricos, preservação de fórmulas e validações e rejeição de entradas
 inválidas. A autenticação local real exige a chave e o compartilhamento acima.
 
-Validação em 21/11/2026: os 33 testes do projeto passaram. Pela conexão do
-Google Drive disponível na sessão, foi criada `TESTE CLI` e aplicadas as dez
-alterações geradas pelo código da CLI para o JSON de exemplo, nas linhas 3 e 4.
-O mesmo código conferiu os valores gravados e a preservação das fórmulas,
-validações e formatos. O saldo em G4 ficou em -20,00. Uma nova prévia com os
-mesmos dados não gera gravações. `FC NOV!A1:G97` e `DRE!V3:V80` permaneceram
-iguais aos valores e metadados lidos antes do teste.
+## Auditar o modelo
 
-Essa verificação utilizou a conexão da sessão, não a autenticação local da CLI,
-que ainda depende da conta de serviço. A conferência de apresentação foi feita
-pelos metadados da API; não houve inspeção visual no navegador. As fórmulas
-originais do modelo foram preservadas, inclusive o saldo zero exibido em linhas
-vazias. A aba de teste já está pronta para os próximos comandos.
+```bash
+.venv/bin/python -m velas_sheets auditar-modelo --xlsx exemplos/modelo-demonstracao.xlsx
+.venv/bin/python -m velas_sheets auditar-modelo
+```
+
+O primeiro comando inspeciona o XLSX local sem credenciais. O segundo consulta
+as planilhas da configuração. Os dois são somente leitura e retornam código 1
+quando encontram problemas. Para corrigir um saldo mensal, revise a fórmula
+indicada e rode a auditoria novamente.
 
 ## Compras parceladas: cadastro e pagamento
 
@@ -153,10 +149,9 @@ Cada ano precisa de um arquivo diferente. Compartilhe todos os arquivos,
 inclusive o principal, com a conta de serviço como Editor. A CLI não cria arquivos
 anuais. Um ano ausente bloqueia o planejamento antes de qualquer gravação.
 
-A configuração local `config.sheets.teste.toml` aponta para duas cópias criadas
-para validação. Use-a inicialmente. Elas preservam os dados do modelo copiado;
-a cópia de 2027 não é um exercício novo com saldos zerados. Para uso real, prepare
-os arquivos anuais e seus saldos iniciais antes de configurar seus IDs.
+Crie um `config.sheets.teste.toml` a partir de `config.sheets.exemplo.toml`
+e preencha os IDs das suas cópias de teste. Para uso real, revise os saldos
+iniciais dos arquivos anuais antes de cadastrar compras.
 
 ### Cadastrar uma compra
 
@@ -216,6 +211,24 @@ modelo (como janeiro, cujo total está atualmente na linha 96). Linhas manuais
 não são usadas como destino. Não há inserção automática de linhas; se o espaço
 acabar, amplie o modelo e revise suas fórmulas antes de prosseguir.
 
+A conferência de saldo aceita fórmulas numericamente equivalentes: `SUM`/`SOMA`,
+adição, subtração e o saldo da linha anterior mais o pagamento atual, desde que
+as linhas anteriores também tenham passado na validação. Por exemplo,
+`=IF(G1+F3=0;0;G1+F3)` é aceita em G3, assim como `=SUM(G$1;F$3:F3)`.
+`IF`/`SE` que apenas troca um resultado zero por zero também é reconhecido.
+A comparação é simbólica, sem depender dos valores atuais; uma planilha vazia
+não torna fórmulas incorretas equivalentes. Fórmulas que zeram o saldo quando
+não há movimento, como `=IF(F97=0;0;G1+F97)`, continuam bloqueadas. Outras funções
+ou sintaxes não reconhecidas geram uma mensagem com a fórmula encontrada e a
+referência esperada. A validação não reescreve as fórmulas existentes.
+
+Para testar lançamentos antes de corrigir as fórmulas de saldo das cópias de
+teste, acrescente `--sem-checagem-saldo` ao comando `compra` ou `pagar`. A opção
+dispensa somente a auditoria das fórmulas de saldo mensal. A escolha fica
+registrada no diário da operação e vale também para `retomar`; sem a opção,
+a checagem continua ativa. O saldo exibido pela planilha pode permanecer errado
+até que as fórmulas sejam corrigidas.
+
 A aba Parcelas nasce com 2.000 linhas, cabeçalho congelado, filtro e formatos de
 data/valor. Se atingir a capacidade, será preciso expandi-la manualmente. A CLI
 suporta leitura de até 10.000 linhas nessa aba. Não altere manualmente os IDs,
@@ -242,25 +255,10 @@ Use um operador por vez. O bloqueio local impede duas gravações pela mesma pas
 mas não bloqueia outras máquinas nem edições simultâneas no navegador. A releitura
 reduz o risco; a API não fornece uma transação única entre todos os arquivos.
 
-### Evidência do teste com duas planilhas
+### Diagnóstico e cancelamento
 
-Foram criadas cópias **TESTE Parcelas - Financeiro 2026** e **2027** na pasta
-ChatGPT do Drive. A compra fictícia `teste-virada`, em
-`exemplos/compra-virada-ano.json`, distribui dois produtos (R$ 100 e R$ 10,01) em
-seis lançamentos entre dezembro/2026, janeiro/2027 e fevereiro/2027. A parcela
-`teste-virada:cera:001` recebeu uma baixa fictícia em 15/02/2027 para testar atraso.
-Esse cenário simula datas futuras e não representa pagamentos reais.
-
-Os pedidos foram gerados pelo planejador da CLI e enviados pelo conector da
-sessão. A conferência usa o mesmo código de verificação da CLI sobre os dados
-relidos do Google. A autenticação local por conta de serviço continua pendente.
-A verificação visual fica limitada aos formatos e valores retornados pela API;
-não houve inspeção no navegador.
-
-Validação final: **48 testes locais passaram**, cobrindo também os comandos
-anteriores. Nas cópias reais, a primeira parcela de R$ 33,34 permaneceu prevista
-em dezembro/2026 e foi registrada uma única vez em fevereiro/2027; o total de
-pagamentos desse mês ficou em -33,34. Replanejar a compra após a baixa produziu
-zero gravações. A DRE mantém suas fórmulas originais: a seção de valores futuros
-consulta a coluna E, e as linhas de receitas/despesas realizadas consultam F.
-O teste não altera a classificação dos centros de custo nem reconstrói a DRE.
+`diagnosticar-operacao` compara as células da operação pendente com os valores
+anteriores e esperados. Se nenhuma alteração tiver sido aplicada e o diagnóstico
+estiver sem conflitos, `cancelar-operacao --aplicar` encerra a operação e preserva
+o diário. Se uma etapa já estiver aplicada, use a retomada depois de resolver
+eventuais conflitos.

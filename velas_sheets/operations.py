@@ -27,7 +27,7 @@ def save(path, data):
 
 def pending(directory):
     return [p for p in sorted(directory.glob('*.json'))
-            if json.loads(p.read_text(encoding='utf-8')).get('state') != 'complete']
+            if json.loads(p.read_text(encoding='utf-8')).get('state') not in ('complete', 'cancelled')]
 
 
 def matches(client, step, side):
@@ -62,6 +62,12 @@ def matches(client, step, side):
 
 
 def apply(plan, directory, factory, path=None):
+    version = plan.get('version', 1)
+    if version == 2:
+        from .operations_v2 import apply as apply_v2
+        return apply_v2(plan, directory, factory, path)
+    if version != 1:
+        raise ValueError(f'Versão de diário não suportada: {version}')
     directory = Path(directory)
     if path is None:
         if pending(directory):
@@ -93,3 +99,31 @@ def apply(plan, directory, factory, path=None):
     plan['state'] = 'complete'
     save(path, plan)
     return path
+
+
+def diagnose(plan, factory):
+    if plan.get('version', 1) == 2:
+        from .operations_v2 import diagnose as diagnose_v2
+        return diagnose_v2(plan, factory)
+    if plan.get('version', 1) != 1:
+        raise ValueError('Versão de diário não suportada.')
+    return [{'planilha': step['book'], 'versao': 1,
+             'anterior': matches(factory(step['book']), step, 'before'),
+             'esperado': matches(factory(step['book']), step, 'after')}
+            for step in plan['steps']]
+
+
+def cancel(plan, path, factory, apply_change=False):
+    if plan.get('version', 1) == 2:
+        from .operations_v2 import cancellable
+        safe = cancellable(plan, factory)
+    elif plan.get('version', 1) == 1:
+        safe = all(not s.get('done') and matches(factory(s['book']), s, 'before') for s in plan['steps'])
+    else:
+        raise ValueError('Versão de diário não suportada.')
+    if not safe:
+        raise ValueError('Cancelamento bloqueado: há alterações aplicadas ou conflito. Use diagnosticar-operacao e retomar.')
+    if apply_change:
+        plan['state'] = 'cancelled'
+        save(path, plan)
+    return True
